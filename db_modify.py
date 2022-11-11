@@ -4,6 +4,7 @@ import random
 
 database_path = 'university_results.db'
 
+
 def get_studies(db_path) -> list:
     """
     Returns list of studies with id, name, degree 
@@ -12,24 +13,25 @@ def get_studies(db_path) -> list:
     with sqlite3.connect(db_path) as con:
         cur = con.cursor()
 
-        res = cur.execute( 'SELECT Studies.id, Studies.name, Studies.degree, \
+        res = cur.execute('SELECT Studies.id, Studies.name, Studies.degree, \
                             COUNT(Students.name) as number \
                             FROM Students JOIN Studies on Students.id_study = Studies.id \
                             GROUP BY Students.id_study '
-                        )
-        
+                          )
+
         return res.fetchall()
-    
-def fill_semesters(db_path) -> None:
+
+
+def fill_semesters(db_path: str) -> None:
     studies = get_studies(db_path)
 
     with sqlite3.connect(db_path) as con:
-        cur = con.cursor()  
+        cur = con.cursor()
 
         req_students_in_study = 'SELECT id, name, id_study FROM Students WHERE id_study = ?'
         req_max_semester = 'SELECT MAX(semester) FROM Subjects WHERE id_study = ?'
         req_add_semester = 'UPDATE Students SET semester = ? WHERE id = ?'
-        
+
         for study in studies:
             study_id = study[0]
             semester_max = cur.execute(req_max_semester, (study_id,)).fetchone()[0]
@@ -43,18 +45,22 @@ def fill_semesters(db_path) -> None:
 
         con.commit()
 
-def fill_results(db_path):
+
+def create_results(db_path: str):
+
+   # TO DO: add script for creating Results table
+
     tests_results = {
-        'Зачет': ('зачет','незачет',),
-        'Экзамен': ('неуд','уд','хор','отл',),
-        'Реферат': ('неуд','уд','хор','отл',),
-        'Курсовая работа': ('неуд','уд','хор','отл',),
-        'Зачет с оценкой': ('неуд','уд','хор','отл',),
-        'Дифференцированный зачет': ('неуд','уд','хор','отл',),
-        'Защита ВКР': ('неуд','уд','хор','отл',),
-        'Контрольная работа': ('неуд','уд','хор','отл',),
-        'Научный доклад': ('неуд','уд','хор','отл',),
-        'ГЭК': ('неуд','уд','хор','отл',),
+        'Зачет': ('зачет', 'незачет',),
+        'Экзамен': ('неуд', 'уд', 'хор', 'отл',),
+        'Реферат': ('неуд', 'уд', 'хор', 'отл',),
+        'Курсовая работа': ('неуд', 'уд', 'хор', 'отл',),
+        'Зачет с оценкой': ('неуд', 'уд', 'хор', 'отл',),
+        'Дифференцированный зачет': ('неуд', 'уд', 'хор', 'отл',),
+        'Защита ВКР': ('неуд', 'уд', 'хор', 'отл',),
+        'Контрольная работа': ('неуд', 'уд', 'хор', 'отл',),
+        'Научный доклад': ('неуд', 'уд', 'хор', 'отл',),
+        'ГЭК': ('неуд', 'уд', 'хор', 'отл',),
     }
 
     req_get_studies = 'SELECT id, name FROM Studies'
@@ -64,7 +70,7 @@ def fill_results(db_path):
 
     with sqlite3.connect(db_path) as con:
         cur = con.cursor()
-        
+
         studies = cur.execute(req_get_studies).fetchall()
         total_studies = len(studies)
 
@@ -72,7 +78,7 @@ def fill_results(db_path):
             id_study = study[0]
             # trace study
             print('{} / {}'.format(id_study, total_studies))
-            
+
             students = cur.execute(req_get_students, (id_study,)).fetchall()
             for student in students:
                 semester = student[2]
@@ -87,11 +93,12 @@ def fill_results(db_path):
                         result = results[index]
 
                         cur.execute(req_insert_result, (id_student, id_subject, result))
-            
+
         con.commit()
+
 
 if __name__ == '__main__':
     if 'fill-semesters' in sys.argv:
         fill_semesters(database_path)
     elif 'fill-results' in sys.argv:
-        fill_results(database_path)
+        create_results(database_path)
