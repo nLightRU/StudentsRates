@@ -7,7 +7,7 @@ import db_requests
 debug = True
 
 root = tk.Tk()
-root.title('University Rates')
+root.title('Students Rates')
 root.geometry('800x600+150+150')
 
 tabControl = ttk.Notebook(root)
@@ -32,6 +32,8 @@ subjectsSearchFrame.pack(anchor=tk.W)
 
 studiesSearched = []
 subjectsSearched = []
+
+subjectObjs = []
 
 def study_find():
     if debug:
@@ -74,15 +76,26 @@ def find_subjects():
                       .order_by(models.Subjects.semester)
 
 
-    subjectsSearched = q.all()
+    subjectsObjs = q.all()
 
-    subjNames = [subj.name + ' ' + str(subj.semester) for subj in subjectsSearched]
+    subjNamesList = [subj.name + ' ' + str(subj.semester) for subj in subjectsObjs]
 
-    if debug:
-        for subj in subjNames:
+    if 0:
+        for subj in subjNamesList:
             print(subj)
+
+    subjNames = tk.Variable(value=subjNamesList)
     
     subjectsList.config(listvariable=subjNames)
+
+
+# def subj_stat():
+    # subj_idx = subjectsList.curselection()[0]
+    # print(subjectObjs)
+    # print(subj_idx[0])
+    # print(subjectObjs[subj_idx])
+    # subj_obj = subjectObjs[subj_idx]
+    # statList.config(text='Статистика по предмету' + subj_obj.name)
 
 
 studySearchLabel = tk.Label(subjectsSearchFrame, text='Введите название специальности')
@@ -110,9 +123,10 @@ filterBtn.pack()
 subjectsLabel = tk.Label(subjectsSearchFrame, text='Предметы')
 subjectsLabel.pack()
 
-subjectsList = tk.Listbox(subjectsSearchFrame)
+subjectsList = tk.Listbox(subjectsSearchFrame, width=70)
 subjectsList.pack()
-subjectBtn = tk.Button(subjectsSearchFrame, text='Статистика')
+
+subjectBtn = tk.Button(subjectsSearchFrame, text='Статистика', command=subj_stat)
 subjectBtn.pack()
 
 # Statistics results in subject
