@@ -2,9 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 
 import models
-import db_requests
-
-debug = True
 
 root = tk.Tk()
 root.title('Students Rates')
@@ -12,15 +9,13 @@ root.geometry('800x600+150+150')
 
 tabControl = ttk.Notebook(root)
 
-# Studies statics GUI
+# Frames for every tab
+
 studiesTab = ttk.Frame(tabControl)
 tabControl.add(studiesTab, text='Специальности')
 
-# Courses statistics GUI
 coursesTab = ttk.Frame(tabControl)
 tabControl.add(coursesTab, text='Курсы')
-
-# Subjects statistics GUI
 
 subjectsTab = ttk.Frame(tabControl)
 tabControl.add(subjectsTab, text='Предметы')
@@ -31,13 +26,12 @@ subjectsSearchFrame = ttk.Frame(subjectsTab)
 subjectsSearchFrame.pack(anchor=tk.W)
 
 studiesSearched = []
-subjectsSearched = []
-
 subjectObjs = []
 
-def study_find():
+def study_find(debug=False):
     if debug:
         print('Search btn clicked')
+        
     rows = models.session.query(models.Studies).all()
     search_str = studySearch.get()
 
@@ -54,12 +48,11 @@ def study_find():
 
     studyList.config(listvariable=studyRows)
 
-    # if debug:
-    #     print('Subjects:')
-    #     subjects = models.session.query
 
-
-def find_subjects():
+def find_subjects(debug=False):
+    """
+        this should return list of subjects for a given study
+    """
     if debug:
         print('Find Subject button clicked')
         print('study:', studyList.curselection())
@@ -80,7 +73,7 @@ def find_subjects():
 
     subjNamesList = [subj.name + ' ' + str(subj.semester) for subj in subjectsObjs]
 
-    if 0:
+    if debug:
         for subj in subjNamesList:
             print(subj)
 
@@ -89,14 +82,21 @@ def find_subjects():
     subjectsList.config(listvariable=subjNames)
 
 
-# def subj_stat():
-    # subj_idx = subjectsList.curselection()[0]
-    # print(subjectObjs)
-    # print(subj_idx[0])
-    # print(subjectObjs[subj_idx])
+def subj_stat(debug=True):
+    """
+        This function should make statistics of
+        subject for a given study
+    """
+    subj_idx = subjectsList.curselection()[0]
+    if debug:
+        print(subj_idx)
+        print(subjectObjs)
+        # print(subjectObjs[subj_idx])
     # subj_obj = subjectObjs[subj_idx]
     # statList.config(text='Статистика по предмету' + subj_obj.name)
 
+
+# Searching study entry field
 
 studySearchLabel = tk.Label(subjectsSearchFrame, text='Введите название специальности')
 studySearchLabel.pack()
@@ -106,7 +106,6 @@ studySearchBtn = tk.Button(subjectsSearchFrame, text='Поиск', command=study
 studySearchBtn.pack()
 
 # Search results
-
 studyList = tk.Listbox(subjectsSearchFrame, width=70)
 studyList.pack()
 
@@ -119,7 +118,7 @@ filterBox.pack()
 filterBtn = tk.Button(subjectsSearchFrame, text='Предметы', command=find_subjects)
 filterBtn.pack()
 
-# Subjects List
+# Subjects list of study
 subjectsLabel = tk.Label(subjectsSearchFrame, text='Предметы')
 subjectsLabel.pack()
 
