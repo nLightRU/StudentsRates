@@ -1,7 +1,9 @@
-# TO DO:
-#   make arguments checking for API
-#   write docstrings for API functions
-#   make get_students_results with join
+"""
+TO DO:
+  make arguments checking for API
+  write docstrings for API functions
+  make get_students_results with join
+"""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
@@ -54,11 +56,13 @@ class Results(Base):
 # the Subject table is a "glue" between studies
 # and students
 
-# Requests for a Study (as entity)
-#   - Academic plan (all subjects)
-#   - Examinations (exams and test in semester)
-#   - Subject header
-#   - Results for a test or an exam
+"""
+Requests for a Study (as entity)
+  - Academic plan (all subjects)
+  - Examinations (exams and test in semester)
+  - Subject header
+  - Results for a test or an exam
+"""
 
 def get_academic_plan(study=1) -> tuple:
     """
@@ -67,13 +71,13 @@ def get_academic_plan(study=1) -> tuple:
 
         Returns a tuple of names.
     """
-    q = session.query(Subjects.name)
-    rows_unordered = q.filter(Subjects.id_study == study)
-    rows = rows_unordered.order_by(Subjects.semester).order_by(Subjects.name)
-    out = []
-    for row in rows:
-        out.append(row.name)
-    return out
+    subjects = session.query(Subjects.name) \
+                      .filter(Subjects.id_study == study) \
+                      .order_by(Subjects.semester).order_by(Subjects.name)
+
+    out = [subject.name for subject in subjects]
+
+    return tuple(out)
 
 def get_examinations(study: int = 1, semester: int = 1) -> tuple:
     """
