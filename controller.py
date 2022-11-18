@@ -7,6 +7,11 @@ import sys
 import models
 
 class SubjectsSearcher:
+    """
+        Studies name + id
+        Subjects name + id
+    """
+
     def __init__(self):
         self.studies_searched = [] 
         self.sheet_header = {}
@@ -17,7 +22,8 @@ class SubjectsSearcher:
             this should return studies names with ids
             for using db api
         """
-        search = f"%{search_str}%"
+        search_title = search_str.title()
+        search = f"%{search_title}%"
         studies = models.session.query(models.Studies) \
                                 .filter(models.Studies.name.like(search)) \
                                 .all()
@@ -30,16 +36,33 @@ class SubjectsSearcher:
             study_dict = {'code': code, 'name': name, 'form':test_study.form}
             print(study_dict)
 
-        self.studies_searched = [
+        self.studies_searched = tuple(
             {'name':study.name, 'form': study.form, 'id':study.id} for study in studies
-        ]
+        )
 
     def find_subjects(self, study_num: int):
-        self.subjects_searched = models.get_academic_plan(self.studies_searched[study_num])
+        subjects = models.session.query(models.Subjects.name, 
+                                        models.Subjects.semester, 
+                                        models.Subjects.id) \
+                                 .where(models.Subjects.id_study == study_num) \
+                                 .order_by(models.Subjects.semester) \
+                                 .all()
+        result = [{'name': subj.name, 'semester': subj.semester, 'id':subj.id} for subj in subjects]
+
+        self.subjects_searched = tuple(result)
+
+    def study(self, index):
+        return self.studies_searched[index]
 
     def studies_rows(self) -> tuple:
         return tuple(study['name'] + ' ' + study['form'] for study in self.studies_searched)
 
+    def subjects_rows(self):
+        return tuple(subj['name'] + ' ' + str(subj['semester']) for subj in self.subjects_searched)
+
+    def get_sheet(self):
+        
+        pass
 
 
 if __name__ == '__main__':

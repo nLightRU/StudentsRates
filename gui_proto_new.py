@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+import controller
 import models
 
 root = tk.Tk()
@@ -8,6 +9,7 @@ root.title('Students Rates')
 root.geometry('800x600+150+150')
 
 tabControl = ttk.Notebook(root)
+searcher = controller.SubjectsSearcher()
 
 # Frames for every tab
 
@@ -25,26 +27,14 @@ tabControl.add(subjectsTab, text='Предметы')
 subjectsSearchFrame = ttk.Frame(subjectsTab)
 subjectsSearchFrame.pack(anchor=tk.W)
 
-studiesSearched = []
-subjectObjs = []
-
 def study_find(debug=False):
     if debug:
         print('Search btn clicked')
         
-    rows = models.session.query(models.Studies).all()
-    search_str = studySearch.get()
+    searcher.find_studies(studySearch.get())
+    studies_names = searcher.studies_rows()
 
-    studiesSearched.clear()
-    for row in rows:
-        if search_str in row.name:
-            studiesSearched.append(row)
-
-    if debug:
-        for row in studiesSearched:
-            print(row.name, row.form)
-
-    studyRows = tk.Variable(value=[row.name + ' ' + row.form for row in studiesSearched])
+    studyRows = tk.Variable(value=studies_names)
 
     studyList.config(listvariable=studyRows)
 
@@ -59,25 +49,13 @@ def find_subjects(debug=False):
 
     studyIndex = studyList.curselection()[0]
 
-    studyObj = studiesSearched[studyIndex]
-
     if debug:
-        print('Find subjects for', studyObj.name, studyObj.form, 'id:', studyObj.id)
+        print(searcher.study(studyIndex))
 
-    q = models.session.query(models.Subjects) \
-                      .where(models.Subjects.id_study == studyObj.id) \
-                      .order_by(models.Subjects.semester)
+    searcher.find_subjects(searcher.study(studyIndex)['id'])
+    subjects = searcher.subjects_rows()
 
-
-    subjectsObjs = q.all()
-
-    subjNamesList = [subj.name + ' ' + str(subj.semester) for subj in subjectsObjs]
-
-    if debug:
-        for subj in subjNamesList:
-            print(subj)
-
-    subjNames = tk.Variable(value=subjNamesList)
+    subjNames = tk.Variable(value=subjects)
     
     subjectsList.config(listvariable=subjNames)
 
@@ -87,13 +65,10 @@ def subj_stat(debug=True):
         This function should make statistics of
         subject for a given study
     """
-    subj_idx = subjectsList.curselection()[0]
-    if debug:
-        print(subj_idx)
-        print(subjectObjs)
-        # print(subjectObjs[subj_idx])
-    # subj_obj = subjectObjs[subj_idx]
-    # statList.config(text='Статистика по предмету' + subj_obj.name)
+
+    subjIndex = 0
+
+    pass
 
 
 # Searching study entry field
@@ -133,8 +108,8 @@ subjectBtn.pack()
 statFrame = tk.Frame(subjectsTab)
 statFrame.pack(anchor=tk.E)
 
-statList = tk.LabelFrame(statFrame, text='Статистика гуся')
-statList.pack(anchor=tk.N)
+statList = tk.Label(statFrame, text='Статистика гуся')
+statList.pack(anchor=tk.S)
 
 # Degree statistics GUI
 degreeTab = ttk.Frame(tabControl)
