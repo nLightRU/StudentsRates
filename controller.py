@@ -51,8 +51,8 @@ class SubjectsSearcher:
 
         self.subjects_searched = tuple(result)
 
-    def study(self, index):
-        return self.studies_searched[index]
+    def study(self, study_index):
+        return self.studies_searched[study_index]
 
     def studies_rows(self) -> tuple:
         return tuple(study['name'] + ' ' + study['form'] for study in self.studies_searched)
@@ -60,9 +60,17 @@ class SubjectsSearcher:
     def subjects_rows(self):
         return tuple(subj['name'] + ' ' + str(subj['semester']) for subj in self.subjects_searched)
 
-    def get_sheet(self):
-        
-        pass
+    def get_sheet(self, subject_index):
+        subject_id = self.subjects_searched[subject_index]['id']
+        sheet = models.get_subject_header(subject_id)
+        return sheet
+
+    def get_results(self, subject_index) -> tuple:
+        subj_id = self.subjects_searched[subject_index]['id']
+
+        sheet = models.get_sheet_results(subj_id)
+
+        return tuple(row['name'] + ' ' + row['result'] for row in sheet)
 
 
 if __name__ == '__main__':

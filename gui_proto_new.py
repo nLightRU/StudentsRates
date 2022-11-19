@@ -1,8 +1,13 @@
+"""
+TO DO 
+    make event for studies list
+    show automatically
+"""
+
 import tkinter as tk
 from tkinter import ttk
 
 import controller
-import models
 
 root = tk.Tk()
 root.title('Students Rates')
@@ -13,25 +18,25 @@ searcher = controller.SubjectsSearcher()
 
 # Frames for every tab
 
-studiesTab = ttk.Frame(tabControl)
-tabControl.add(studiesTab, text='Специальности')
+# studiesTab = ttk.Frame(tabControl)
+# tabControl.add(studiesTab, text='Специальности')
 
-coursesTab = ttk.Frame(tabControl)
-tabControl.add(coursesTab, text='Курсы')
+# coursesTab = ttk.Frame(tabControl)
+# tabControl.add(coursesTab, text='Курсы')
 
 subjectsTab = ttk.Frame(tabControl)
+subjectsTab.grid()
 tabControl.add(subjectsTab, text='Предметы')
 
 # Study search in Subjects tab
 
-subjectsSearchFrame = ttk.Frame(subjectsTab)
-subjectsSearchFrame.pack(anchor=tk.W)
+
 
 def study_find(debug=False):
     if debug:
         print('Search btn clicked')
         
-    searcher.find_studies(studySearch.get())
+    searcher.find_studies(studySearchEntry.get())
     studies_names = searcher.studies_rows()
 
     studyRows = tk.Variable(value=studies_names)
@@ -66,54 +71,63 @@ def subj_stat(debug=True):
         subject for a given study
     """
 
-    subjIndex = 0
+    index = subjectsList.curselection()[0]
 
-    pass
+    sheet = searcher.get_sheet(index)
 
+    header_str = ''
+    for key in sheet:
+        if type(sheet[key]) == int:
+            header_str += str(sheet[key]) + ' семестр' + '\n'
+        else:    
+            header_str += str(sheet[key]) + '\n'
+    
+    out_text = header_str + '\n'.join(searcher.get_results(index))
+
+    if 1:
+        print(out_text)
+
+    statContent.config(text=out_text)
+
+## SEARCH SUBJECT
+
+subjectsSearchFrame = ttk.Frame(subjectsTab, width=70)
+subjectsSearchFrame.grid(row=0, column=0)
 
 # Searching study entry field
-
 studySearchLabel = tk.Label(subjectsSearchFrame, text='Введите название специальности')
-studySearchLabel.pack()
-studySearch = tk.Entry(subjectsSearchFrame)
-studySearch.pack()
+studySearchEntry = tk.Entry(subjectsSearchFrame)
 studySearchBtn = tk.Button(subjectsSearchFrame, text='Поиск', command=study_find)
-studySearchBtn.pack()
-
-# Search results
 studyList = tk.Listbox(subjectsSearchFrame, width=70)
-studyList.pack()
+
+studySearchLabel.grid(row=1, column=0)
+studySearchEntry.grid(row=2, column=0)
+studySearchBtn.grid(row=3, column=0)
+studyList.grid(row=4, column=0)
 
 # Filtering courses
-optionsLabel = tk.Label(subjectsSearchFrame, text='Курс')
-optionsLabel.pack()
-filterOptions = ['Все', 1, 2, 3, 4]
-filterBox = ttk.Combobox(subjectsSearchFrame, values=filterOptions)
-filterBox.pack()
-filterBtn = tk.Button(subjectsSearchFrame, text='Предметы', command=find_subjects)
-filterBtn.pack()
+
+subjFindBtn = tk.Button(subjectsSearchFrame, text='Предметы', command=find_subjects)
+subjFindBtn.grid(row=5, column=0)
 
 # Subjects list of study
 subjectsLabel = tk.Label(subjectsSearchFrame, text='Предметы')
-subjectsLabel.pack()
+subjectsLabel.grid(row=6, column=0)
 
 subjectsList = tk.Listbox(subjectsSearchFrame, width=70)
-subjectsList.pack()
+subjectsList.grid(row=7, column=0)
 
 subjectBtn = tk.Button(subjectsSearchFrame, text='Статистика', command=subj_stat)
-subjectBtn.pack()
+subjectBtn.grid(row=8, column=0)
 
 # Statistics results in subject
 
-statFrame = tk.Frame(subjectsTab)
-statFrame.pack(anchor=tk.E)
+# statFrame = ttk.Frame(subjectsTab)
+# statFrame.grid(row=0, column=1)
 
-statList = tk.Label(statFrame, text='Статистика гуся')
-statList.pack(anchor=tk.S)
+statContent = tk.Label(subjectsTab, text='Статистика')
+statContent.grid(row=0, column=1, sticky='n')
 
-# Degree statistics GUI
-degreeTab = ttk.Frame(tabControl)
-tabControl.add(degreeTab, text='Уровень образования')
 
 tabControl.pack(fill='x')
 
