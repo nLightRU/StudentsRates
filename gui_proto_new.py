@@ -84,10 +84,19 @@ def subj_stat(debug=True):
     
     out_text = header_str + '\n'.join(searcher.get_results(index))
 
-    if 1:
+    if 0:
         print(out_text)
 
     statContent.config(text=out_text)
+
+def export_to_csv():
+    file = 'out.csv'
+
+    with open(file, 'w', encoding='utf-8') as f:
+        stat_data = statContent['text'].split('\n')
+        for data in stat_data[4:]:
+            f.write(data + '\n')
+
 
 ## SEARCH SUBJECT
 
@@ -120,6 +129,8 @@ subjectsList.grid(row=7, column=0)
 subjectBtn = tk.Button(subjectsSearchFrame, text='Статистика', command=subj_stat)
 subjectBtn.grid(row=8, column=0)
 
+exportBtn = tk.Button(subjectsSearchFrame, text='Экспорт в CSV', command=export_to_csv)
+exportBtn.grid(row=9, column=0)
 # Statistics results in subject
 
 # statFrame = ttk.Frame(subjectsTab)
@@ -127,7 +138,6 @@ subjectBtn.grid(row=8, column=0)
 
 statContent = tk.Label(subjectsTab, text='Статистика')
 statContent.grid(row=0, column=1, sticky='n')
-
 
 tabControl.pack(fill='x')
 
